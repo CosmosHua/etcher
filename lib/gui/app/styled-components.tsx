@@ -168,6 +168,11 @@ export const Modal = styled(({ style, children, ...props }) => {
 		padding: 0;
 		height: 100%;
 
+		> div:first-child {
+			height: 81%;
+			padding: 24px 30px 0;
+		}
+
 		> h3 {
 			margin: 0;
 			padding: 24px 30px 0;
@@ -242,6 +247,9 @@ export const Alert = styled((props) => (
 
 export interface GenericTableProps<T> extends BaseTableProps<T> {
 	refFn: (t: BaseTable<T>) => void;
+	data: T[];
+	notAllSelected?: boolean;
+	checkedRowsNumber?: number;
 	multipleSelection: boolean;
 	showWarnings?: boolean;
 }
@@ -271,6 +279,19 @@ function StyledTable<T>() {
 
 			input[type='checkbox'] + div {
 				display: ${(props) => (props.multipleSelection ? 'flex' : 'none')};
+
+				${(props) =>
+					props.notAllSelected
+						? `
+					font-weight: 600;
+					color: ${colors.primary.foreground};
+					background: ${colors.primary.background};
+
+					::after {
+						content: '–';
+					}
+					`
+						: ''}
 			}
 		}
 
@@ -316,5 +337,12 @@ function StyledTable<T>() {
 
 export const Table = <T extends {}>(props: GenericTableProps<T>) => {
 	const TypedStyledFunctional = StyledTable<T>();
+	if (
+		props.multipleSelection &&
+		props.checkedRowsNumber !== 0 &&
+		props.checkedRowsNumber !== props.data.length
+	) {
+		props.notAllSelected = true;
+	}
 	return <TypedStyledFunctional {...props} />;
 };
